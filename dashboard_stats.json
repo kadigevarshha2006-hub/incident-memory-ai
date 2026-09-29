@@ -1,0 +1,31 @@
+{
+  "model_name": "RandomForestClassifier (100 estimators)",
+  "pipeline_steps": [
+    "SimpleImputer",
+    "OneHotEncoder",
+    "RandomForestClassifier"
+  ],
+  "target_variable": "made_sla (Boolean: False = SLA Breached, True = SLA Achieved)",
+  "total_event_rows": 119998,
+  "unique_incidents": 20769,
+  "train_incidents": 16615,
+  "test_incidents": 4154,
+  "sla_achieved_total": 12595,
+  "sla_breached_total": 8174,
+  "sla_achieved_pct": 60.64,
+  "sla_breached_pct": 39.36,
+  "test_accuracy": 0.7997,
+  "test_accuracy_pct": 79.97,
+  "precision_breach": 0.7814,
+  "recall_breach": 0.682,
+  "f1_breach": 0.7283,
+  "precision_achieved": 0.8093,
+  "recall_achieved": 0.8761,
+  "f1_achieved": 0.8414,
+  "confusion_matrix": {
+    "true_negatives_breach_correct": 1115,
+    "false_positives_false_alarm": 520,
+    "false_negatives_missed_breach": 312,
+    "true_positives_achieved_correct": 2207
+  }
+}

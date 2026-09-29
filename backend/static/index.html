@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Incident Response Assistant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Custom scrollbar for dark theme */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569; 
+        }
+        .page { display: none; }
+        .page.active { display: block; }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 font-sans min-h-screen flex flex-col">
+
+    <!-- Navigation -->
+    <nav class="bg-slate-800 border-b border-slate-700 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center gap-2 cursor-pointer" onclick="navigateTo('page-home')">
+                        <svg class="h-8 w-8 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                        <span class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-indigo-500">AI Response</span>
+                    </div>
+                    <div class="hidden md:block">
+                        <div class="ml-10 flex items-baseline space-x-4">
+                            <button onclick="navigateTo('page-home')" class="nav-link px-3 py-2 rounded-md text-sm font-medium hover:bg-slate-700 hover:text-white" data-target="page-home">Home</button>
+                            <button onclick="navigateTo('page-investigate')" class="nav-link px-3 py-2 rounded-md text-sm font-medium hover:bg-slate-700 hover:text-white" data-target="page-investigate">Investigate</button>
+                            <button onclick="navigateTo('page-memory')" class="nav-link px-3 py-2 rounded-md text-sm font-medium hover:bg-slate-700 hover:text-white" data-target="page-memory">Team Memory</button>
+                            <button onclick="navigateTo('page-analytics')" class="nav-link px-3 py-2 rounded-md text-sm font-medium hover:bg-slate-700 hover:text-white" data-target="page-analytics">Analytics</button>
+                            <button onclick="navigateTo('page-how-it-works')" class="nav-link px-3 py-2 rounded-md text-sm font-medium hover:bg-slate-700 hover:text-white" data-target="page-how-it-works">How It Works</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- PAGE 1: HOME -->
+        <div id="page-home" class="page active">
+            <div class="text-center py-16 px-4 sm:px-6 lg:px-8">
+                <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight mb-6">
+                    <span class="block text-white">AI Incident Response</span>
+                    <span class="block text-blue-500">Assistant</span>
+                </h1>
+                <p class="mt-4 max-w-2xl mx-auto text-xl text-slate-300 mb-10">
+                    Predict SLA breaches, leverage institutional memory, and enable closed-loop learning to resolve incidents faster with Machine Learning.
+                </p>
+                <div class="flex justify-center mb-16">
+                    <button onclick="navigateTo('page-investigate')" class="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-lg transition-transform transform hover:scale-105 flex items-center gap-2">
+                        Start Investigation
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                    </button>
+                </div>
+
+                <!-- Features -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16 text-left">
+                    <div class="bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-sm hover:border-slate-600 transition-colors">
+                        <div class="bg-blue-900/50 w-12 h-12 rounded-lg flex items-center justify-center mb-4 text-blue-400">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">ML SLA Prediction</h3>
+                        <p class="text-slate-400 text-sm">Proactively evaluate incoming incidents using a Random Forest model trained on thousands of historical tickets to predict SLA breach probability.</p>
+                    </div>
+                    <div class="bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-sm hover:border-slate-600 transition-colors">
+                        <div class="bg-purple-900/50 w-12 h-12 rounded-lg flex items-center justify-center mb-4 text-purple-400">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">Institutional Memory</h3>
+                        <p class="text-slate-400 text-sm">Search and retrieve context from past similar incidents, extracting proven root cause diagnoses and remediation steps to accelerate resolution.</p>
+                    </div>
+                    <div class="bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-sm hover:border-slate-600 transition-colors">
+                        <div class="bg-green-900/50 w-12 h-12 rounded-lg flex items-center justify-center mb-4 text-green-400">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">Closed-Loop Learning</h3>
+                        <p class="text-slate-400 text-sm">Safely verify resolutions via staging simulations and save successful fixes back to the team memory base, continuously improving the system.</p>
+                    </div>
+                </div>
+
+                <!-- Quick Start Scenarios -->
+                <div class="border-t border-slate-700 pt-10">
+                    <h2 class="text-2xl font-bold mb-6 text-slate-200">Quick-Start Scenarios</h2>
+                    <div class="flex flex-wrap justify-center gap-4">
+                        <button onclick="fillScenario('payment'); navigateTo('page-investigate')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-md text-sm font-medium transition-colors">Payment DB Pool</button>
+                        <button onclick="fillScenario('auth'); navigateTo('page-investigate')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-md text-sm font-medium transition-colors">Auth JWT Expired</button>
+                        <button onclick="fillScenario('k8s'); navigateTo('page-investigate')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-md text-sm font-medium transition-colors">K8s OOM Kills</button>
+                        <button onclick="fillScenario('kafka'); navigateTo('page-investigate')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-md text-sm font-medium transition-colors">Kafka Lag Spike</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PAGE 2: INVESTIGATE -->
+        <div id="page-investigate" class="page">
+            
+            <!-- FORM STATE -->
+            <div id="incident-form" class="max-w-4xl mx-auto bg-slate-800 rounded-xl shadow-xl border border-slate-700 overflow-hidden">
+                <div class="bg-slate-800/80 p-6 border-b border-slate-700">
+                    <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+                        <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+                        New Incident Report
+                    </h2>
+                    <p class="text-slate-400 mt-1 text-sm">Provide details below to analyze the incident and predict SLA breach risk.</p>
+                </div>
+                
+                <div class="p-6 space-y-6">
+                    <!-- Core Details -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-1">Affected Service *</label>
+                            <input type="text" id="invService" class="w-full bg-slate-900 border border-slate-600 rounded-md py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g. payment-service">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-1">Incident Title</label>
+                            <input type="text" id="invTitle" class="w-full bg-slate-900 border border-slate-600 rounded-md py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Brief summary of the issue">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-1">Problem Description *</label>
+                        <textarea id="invDescription" rows="3" class="w-full bg-slate-900 border border-slate-600 rounded-md py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Describe the impact and what is failing..."></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-1">Symptoms & Logs</label>
+                        <textarea id="invSymptoms" rows="3" class="w-full bg-slate-900 border border-slate-600 rounded-md py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-sm" placeholder="Paste relevant log lines or error codes..."></textarea>
+                    </div>
+
+                    <!-- Categorization -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 border-t border-slate-700">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-1">Category</label>
+                            <select id="invCategorySelect" onchange="onCategoryChanged()" class="w-full bg-slate-900 border border-slate-600 rounded-md py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="">Select Category...</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-1">Subcategory</label>
+                            <select id="invSubcategorySelect" class="w-full bg-slate-900 border border-slate-600 rounded-md py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="">Select Subcategory...</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-1">Environment</label>
+                            <select id="invEnvironment" class="w-full bg-slate-900 border border-slate-600 rounded-md py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="Production">Production</option>
+                                <option value="Staging">Staging</option>
+                                <option value="Development">Development</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Metrics -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-slate-700">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-1">Priority</label>
+                            <select id="invPriority" class="w-full bg-slate-900 border border-slate-600 rounded-md py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="1 - Critical">1 - Critical</option>
+                                <option value="2 - High">2 - High</option>
+                                <option value="3 - Moderate" selected>3 - Moderate</option>
+                                <option value="4 - Low">4 - Low</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-1">Impact</label>
+                            <select id="invImpact" class="w-full bg-slate-900 border border-slate-600 rounded-md py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="1 - High">1 - High</option>
+                                <option value="2 - Medium" selected>2 - Medium</option>
+                                <option value="3 - Low">3 - Low</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-1">Urgency</label>
+                            <select id="invUrgency" class="w-full bg-slate-900 border border-slate-600 rounded-md py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="1 - High">1 - High</option>
+                                <option value="2 - Medium" selected>2 - Medium</option>
+                                <option value="3 - Low">3 - Low</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-1">Contact Type</label>
+                            <select id="invContactType" class="w-full bg-slate-900 border border-slate-600 rounded-md py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="Email">Email</option>
+                                <option value="Phone">Phone</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Meta -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-slate-700">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-1">Assignment Group</label>
+                            <select id="invAssignmentGroup" class="w-full bg-slate-900 border border-slate-600 rounded-md py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="">Select Group...</option>
+                            </select>
+                        </div>
+                        <div class="flex items-center h-full pt-6">
+                            <label class="flex items-center space-x-3 cursor-pointer">
+                                <input type="checkbox" id="invKnowledge" class="w-5 h-5 bg-slate-900 border-slate-600 rounded text-blue-500 focus:ring-blue-500">
+                                <span class="text-sm font-medium text-slate-300">Knowledge Base Article Available</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-800/80 p-6 border-t border-slate-700 flex justify-end">
+                    <button onclick="startInvestigation()" class="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow transition-colors flex items-center gap-2">
+                        ⚡ ANALYZE INCIDENT
+                    </button>
+                </div>
+            </div>
+
+            <!-- LOADING STATE -->
+            <div id="investigation-loading" class="hidden max-w-lg mx-auto mt-20 text-center">
+                <svg class="animate-spin h-12 w-12 text-blue-500 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <h3 class="text-xl font-semibold text-white mb-2">Analyzing Incident...</h3>
+                <p class="text-slate-400 text-sm">Predicting SLA risk and querying institutional memory.</p>
+            </div>
+
+            <!-- RESULTS STATE -->
+            <div id="investigation-results" class="hidden space-y-6">
+                
+                <div class="flex items-center mb-4">
+                    <button onclick="resetInvestigation()" class="text-slate-400 hover:text-white flex items-center gap-1 text-sm font-medium transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                        New Investigation
+                    </button>
+                </div>
+
+                <!-- Section A: Incident Status -->
+                <div id="section-summary" class="bg-slate-800 rounded-xl border border-slate-700 p-5 shadow-sm">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div>
+                            <span class="block text-xs font-semibold text-slate-500 uppercase">Service</span>
+                            <span class="block text-sm text-white font-medium truncate" id="res-service">-</span>
+                        </div>
+                        <div>
+                            <span class="block text-xs font-semibold text-slate-500 uppercase">Environment</span>
+                            <span class="block text-sm text-white font-medium truncate" id="res-environment">-</span>
+                        </div>
+                        <div>
+                            <span class="block text-xs font-semibold text-slate-500 uppercase">Priority</span>
+                            <span class="block text-sm text-white font-medium truncate" id="res-priority">-</span>
+                        </div>
+                        <div>
+                            <span class="block text-xs font-semibold text-slate-500 uppercase">Assignment Group</span>
+                            <span class="block text-sm text-white font-medium truncate" id="res-group">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    
+                    <!-- LEFT COLUMN: Risk & Diagnostics -->
+                    <div class="lg:col-span-1 space-y-6">
+                        
+                        <!-- Section B: SLA Breach Risk -->
+                        <div id="section-risk" class="bg-slate-800 rounded-xl border border-slate-700 p-6 shadow-sm text-center">
+                            <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4">SLA Breach Risk</h3>
+                            <div id="risk-display" class="flex flex-col items-center justify-center">
+                                <!-- Dynamic content -->
+                            </div>
+                            <div class="mt-4 pt-4 border-t border-slate-700 text-xs text-slate-500">
+                                Random Forest Model • 20,769 training cases • 79.97% historical accuracy
+                            </div>
+                        </div>
+
+                        <!-- Section C: Risk Factors -->
+                        <div id="section-factors" class="bg-slate-800 rounded-xl border border-slate-700 p-6 shadow-sm">
+                            <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4">Why is this risk level predicted?</h3>
+                            <div id="factors-grid" class="space-y-3">
+                                <!-- Dynamic content -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT COLUMN: Memory, Diagnosis, Resolution -->
+                    <div class="lg:col-span-2 space-y-6">
+                        
+                        <!-- Section E: Root Cause Diagnosis -->
+                        <div id="section-diagnosis" class="bg-slate-800 rounded-xl border border-slate-700 p-6 shadow-sm border-l-4 border-l-purple-500">
+                            <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+                                <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                Root Cause Diagnosis
+                            </h3>
+                            <div id="diagnosis-content" class="text-slate-200">
+                                <!-- Dynamic content -->
+                            </div>
+                        </div>
+
+                        <!-- Section F: Recommended Resolution -->
+                        <div id="section-resolution" class="bg-slate-800 rounded-xl border border-slate-700 p-6 shadow-sm">
+                            <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+                                <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+                                Recommended Resolution
+                            </h3>
+                            <div id="resolution-steps" class="space-y-2">
+                                <!-- Dynamic content -->
+                            </div>
+                        </div>
+
+                        <!-- Section G: Safe Verification -->
+                        <div id="section-verification" class="bg-slate-800 rounded-xl border border-slate-700 p-6 shadow-sm border-t-4 border-t-amber-500">
+                            <div class="flex justify-between items-start mb-4">
+                                <div>
+                                    <h3 class="text-sm font-bold text-amber-500 uppercase tracking-wider">Safe Verification — Staging Simulation</h3>
+                                    <p class="text-xs text-slate-400 mt-1 uppercase font-semibold">STAGING / SIMULATION — Not production</p>
+                                </div>
+                                <button id="btn-verify" onclick="runVerification()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white text-sm font-medium rounded transition-colors flex items-center gap-2 border border-slate-600">
+                                    ▶ Run Verification
+                                </button>
+                            </div>
+                            <div id="verification-content" class="bg-slate-900 rounded p-4 border border-slate-700">
+                                <div class="text-center text-slate-500 text-sm py-4">Click "Run Verification" to simulate remediation in staging environment.</div>
+                            </div>
+                        </div>
+
+                        <!-- Section H: Save to Team Memory -->
+                        <div id="section-save" class="bg-slate-800 rounded-xl border border-slate-700 p-6 shadow-sm hidden">
+                            <h3 class="text-sm font-bold text-green-400 uppercase tracking-wider mb-4">Verification Successful</h3>
+                            <p class="text-sm text-slate-300 mb-4">Resolution steps have been verified to reduce SLA breach risk to low levels while passing health checks.</p>
+                            <div class="flex items-center justify-between">
+                                <button onclick="saveToMemory()" class="px-6 py-2 bg-green-600 hover:bg-green-700 text-white font-bold rounded shadow transition-colors flex items-center gap-2">
+                                    💾 Save to Team Memory
+                                </button>
+                                <span id="save-success" class="text-green-400 text-sm font-medium flex items-center gap-1 hidden">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                    Knowledge saved successfully!
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <!-- Section D: Historical Evidence -->
+                        <div id="section-history" class="bg-slate-800 rounded-xl border border-slate-700 p-6 shadow-sm mt-8">
+                            <div class="mb-4 border-b border-slate-700 pb-2">
+                                <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider">Similar Historical Incidents</h3>
+                                <p class="text-xs text-slate-500 uppercase mt-1 font-semibold">HISTORICAL EVIDENCE — Not the current incident</p>
+                            </div>
+                            <div id="history-cards" class="space-y-4">
+                                <!-- Dynamic content -->
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PAGE 3: TEAM MEMORY -->
+        <div id="page-memory" class="page">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-white mb-2">Institutional Memory</h2>
+                <p class="text-slate-400">Search past verified incident resolutions and root cause analyses.</p>
+            </div>
+            
+            <div class="bg-slate-800 p-4 rounded-lg border border-slate-700 mb-6 flex gap-4">
+                <div class="flex-grow relative">
+                    <svg class="w-5 h-5 absolute left-3 top-2.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    <input type="text" id="memory-search" placeholder="Search by keyword, service, or incident ID..." class="w-full bg-slate-900 border border-slate-600 rounded-md py-2 pl-10 pr-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <button class="px-4 py-2 bg-slate-700 hover:bg-slate-600 border border-slate-600 rounded text-white text-sm transition-colors font-medium">Filter</button>
+            </div>
+
+            <div id="memory-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Loaded dynamically -->
+            </div>
+        </div>
+
+        <!-- Modal for Team Memory -->
+        <div id="memory-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center hidden">
+            <div class="bg-slate-800 border border-slate-700 rounded-xl shadow-2xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+                <div class="flex justify-between items-center p-4 border-b border-slate-700 sticky top-0 bg-slate-800">
+                    <h3 class="text-lg font-bold text-white" id="modal-title">Incident Details</h3>
+                    <button onclick="closeMemoryModal()" class="text-slate-400 hover:text-white">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+                <div class="p-6" id="modal-content">
+                    <!-- Content injected here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- PAGE 4: ANALYTICS -->
+        <div id="page-analytics" class="page">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-white mb-2">Analytics & Performance</h2>
+                <p class="text-slate-400">System metrics and predictive model performance overview.</p>
+            </div>
+
+            <!-- KPI Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="bg-slate-800 rounded-xl border border-slate-700 p-5 shadow-sm">
+                    <p class="text-sm font-medium text-slate-400">Total Incidents Analzyed</p>
+                    <p class="text-3xl font-bold text-white mt-2">20,769</p>
+                </div>
+                <div class="bg-slate-800 rounded-xl border border-slate-700 p-5 shadow-sm">
+                    <p class="text-sm font-medium text-slate-400">SLA Achieved Rate</p>
+                    <p class="text-3xl font-bold text-green-400 mt-2">84.2%</p>
+                </div>
+                <div class="bg-slate-800 rounded-xl border border-slate-700 p-5 shadow-sm">
+                    <p class="text-sm font-medium text-slate-400">SLA Breached Rate</p>
+                    <p class="text-3xl font-bold text-amber-500 mt-2">15.8%</p>
+                </div>
+                <div class="bg-slate-800 rounded-xl border border-slate-700 p-5 shadow-sm">
+                    <p class="text-sm font-medium text-slate-400">Model Accuracy</p>
+                    <p class="text-3xl font-bold text-blue-400 mt-2">79.97%</p>
+                </div>
+            </div>
+
+            <!-- Charts Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-slate-800 rounded-xl border border-slate-700 p-5 shadow-sm">
+                    <h3 class="text-sm font-bold text-slate-300 uppercase mb-4">SLA Distribution</h3>
+                    <div class="aspect-square max-h-80 mx-auto">
+                        <canvas id="slaChart"></canvas>
+                    </div>
+                </div>
+                <div class="bg-slate-800 rounded-xl border border-slate-700 p-5 shadow-sm">
+                    <h3 class="text-sm font-bold text-slate-300 uppercase mb-4">Incidents by Priority</h3>
+                    <div class="aspect-video">
+                        <canvas id="priorityChart"></canvas>
+                    </div>
+                </div>
+                <div class="bg-slate-800 rounded-xl border border-slate-700 p-5 shadow-sm lg:col-span-2">
+                    <h3 class="text-sm font-bold text-slate-300 uppercase mb-4">Model Performance Overview</h3>
+                    <div class="aspect-video max-h-80 mx-auto">
+                        <canvas id="performanceChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PAGE 5: HOW IT WORKS -->
+        <div id="page-how-it-works" class="page">
+            <div class="max-w-3xl mx-auto">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold text-white mb-4">How It Works</h2>
+                    <p class="text-slate-400">A closed-loop AI system for intelligent incident response</p>
+                </div>
+                
+                <div class="relative border-l-2 border-slate-700 ml-6 pl-8 space-y-12">
+                    
+                    <div class="relative">
+                        <div class="absolute -left-[41px] bg-slate-800 border-2 border-slate-600 rounded-full w-10 h-10 flex items-center justify-center text-white font-bold shadow">1</div>
+                        <h3 class="text-xl font-bold text-white mb-2">Submit Incident</h3>
+                        <p class="text-slate-400">Data about the service, priority, symptoms, and categorical fields is collected securely within the incident response platform.</p>
+                    </div>
+
+                    <div class="relative">
+                        <div class="absolute -left-[41px] bg-blue-900 border-2 border-blue-500 rounded-full w-10 h-10 flex items-center justify-center text-blue-400 font-bold shadow">2</div>
+                        <h3 class="text-xl font-bold text-blue-400 mb-2">ML Predicts SLA Risk</h3>
+                        <p class="text-slate-400">A Random Forest classifier, trained on over 20,000 historical IT incidents, instantly calculates the probability of an SLA breach based on key risk factors.</p>
+                    </div>
+
+                    <div class="relative">
+                        <div class="absolute -left-[41px] bg-slate-800 border-2 border-slate-600 rounded-full w-10 h-10 flex items-center justify-center text-white font-bold shadow">3</div>
+                        <h3 class="text-xl font-bold text-white mb-2">Search Historical Memory</h3>
+                        <p class="text-slate-400">The system searches its institutional memory base using vector similarity to find past incidents with matching symptom signatures and contexts.</p>
+                    </div>
+
+                    <div class="relative">
+                        <div class="absolute -left-[41px] bg-purple-900 border-2 border-purple-500 rounded-full w-10 h-10 flex items-center justify-center text-purple-400 font-bold shadow">4</div>
+                        <h3 class="text-xl font-bold text-purple-400 mb-2">Diagnose Root Cause</h3>
+                        <p class="text-slate-400">By synthesizing the current inputs with historical evidence, the AI identifies the most probable root cause with an assigned confidence score.</p>
+                    </div>
+
+                    <div class="relative">
+                        <div class="absolute -left-[41px] bg-slate-800 border-2 border-slate-600 rounded-full w-10 h-10 flex items-center justify-center text-white font-bold shadow">5</div>
+                        <h3 class="text-xl font-bold text-white mb-2">Recommend Resolution</h3>
+                        <p class="text-slate-400">A precise, actionable, step-by-step remediation runbook is generated, minimizing time spent troubleshooting and searching documentation.</p>
+                    </div>
+
+                    <div class="relative">
+                        <div class="absolute -left-[41px] bg-amber-900 border-2 border-amber-500 rounded-full w-10 h-10 flex items-center justify-center text-amber-400 font-bold shadow">6</div>
+                        <h3 class="text-xl font-bold text-amber-400 mb-2">Verify Recovery</h3>
+                        <p class="text-slate-400">Proposed solutions can be safely simulated in a staging environment. The AI recalculates the SLA risk to ensure the fix effectively mitigates the danger.</p>
+                    </div>
+
+                    <div class="relative">
+                        <div class="absolute -left-[41px] bg-green-900 border-2 border-green-500 rounded-full w-10 h-10 flex items-center justify-center text-green-400 font-bold shadow">7</div>
+                        <h3 class="text-xl font-bold text-green-400 mb-2">Save Knowledge</h3>
+                        <p class="text-slate-400">Once verified, the successful diagnosis and resolution are saved back into the team's Institutional Memory, continuously expanding the system's intelligence loop.</p>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>

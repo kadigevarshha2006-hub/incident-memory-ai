@@ -1,0 +1,482 @@
+[
+  {
+    "incident_id": "INC001042",
+    "kaggle_metadata": {
+      "category": "Category 26",
+      "subcategory": "Subcategory 174",
+      "impact": "1 - High",
+      "urgency": "1 - High",
+      "priority": "1 - Critical",
+      "assignment_group": "Group 70",
+      "contact_type": "Phone",
+      "knowledge": false,
+      "made_sla": false
+    },
+    "synthetic_enrichment": {
+      "service": "Payment Gateway API",
+      "summary": "Database connection timeouts immediately following v2.4 service deployment under production traffic.",
+      "symptoms": "Spike in HTTP 504 Gateway Timeouts, API latency jumped from 45ms to 12,000ms, DB connection pool acquisition errors in application logs.",
+      "root_cause": "HikariCP connection pool exhausted due to default maxPoolSize=10 remaining in application.yml instead of production config 50.",
+      "remediation": "Updated database pool configuration in ConfigMap: maxPoolSize=50, connectionTimeout=30000ms. Performed rolling restart of deployment.",
+      "runbook": "Runbook-DB-HikariCP-Tuning",
+      "post_mortem": "Enforce CI/CD linting rule to reject default dev connection pool sizes in staging and production manifests."
+    },
+    "tags": ["payment-api", "database", "connection-pool", "Category 26", "Critical"]
+  },
+  {
+    "incident_id": "INC001150",
+    "kaggle_metadata": {
+      "category": "Category 42",
+      "subcategory": "Subcategory 223",
+      "impact": "1 - High",
+      "urgency": "1 - High",
+      "priority": "1 - Critical",
+      "assignment_group": "Group 25",
+      "contact_type": "Phone",
+      "knowledge": false,
+      "made_sla": false
+    },
+    "synthetic_enrichment": {
+      "service": "Authentication & Session Service",
+      "summary": "Sudden 401 Unauthorized storm across all mobile and web user sessions.",
+      "symptoms": "Global user logout event, 15,000 auth errors per minute, log message 'JWT signature verification failed: key expired'.",
+      "root_cause": "Public RS256 token-signing certificate reached midnight UTC expiration date; automated Cert-Manager renewal cron was failing due to IAM DNS permissions.",
+      "remediation": "Manually rotated JWT signing keypair in HashiCorp Vault and bounced Auth Service pods to load the updated public JWKS keyset.",
+      "runbook": "Runbook-Auth-Cert-Rotation",
+      "post_mortem": "Configure PagerDuty alert for SSL/JWT certificate expiration at 30 days and 7 days thresholds."
+    },
+    "tags": ["auth-service", "jwt", "ssl-certificates", "Category 42", "Critical"]
+  },
+  {
+    "incident_id": "INC001280",
+    "kaggle_metadata": {
+      "category": "Category 26",
+      "subcategory": "Subcategory 175",
+      "impact": "2 - Medium",
+      "urgency": "1 - High",
+      "priority": "2 - High",
+      "assignment_group": "Group 70",
+      "contact_type": "Email",
+      "knowledge": true,
+      "made_sla": true
+    },
+    "synthetic_enrichment": {
+      "service": "Checkout & Cart Microservice",
+      "summary": "Redis cache cluster memory saturation causing severe database read latency.",
+      "symptoms": "Redis memory usage hit 100%, evictions rate skyrocketed to 50k keys/sec, database read replica IOPS pegged at maximum capacity.",
+      "root_cause": "A newly launched product recommendation widget was caching unbounded JSON payloads without TTL expiration policies.",
+      "remediation": "Set volatile-lru eviction policy and attached 15-minute TTL to 'cart:recommendation:*' keys via hotfix patch.",
+      "runbook": "Runbook-Redis-Eviction-Policy",
+      "post_mortem": "Mandate default TTL middleware on all Redis cache write operations."
+    },
+    "tags": ["checkout-service", "redis", "cache-eviction", "Category 26", "High"]
+  },
+  {
+    "incident_id": "INC001395",
+    "kaggle_metadata": {
+      "category": "Category 53",
+      "subcategory": "Subcategory 135",
+      "impact": "2 - Medium",
+      "urgency": "2 - Medium",
+      "priority": "3 - Moderate",
+      "assignment_group": "Group 24",
+      "contact_type": "Self-service",
+      "knowledge": false,
+      "made_sla": true
+    },
+    "synthetic_enrichment": {
+      "service": "Order Processing Worker",
+      "summary": "Kafka consumer group rebalance storm causing massive consumer lag.",
+      "symptoms": "Consumer lag exceeded 500,000 messages, frequent 'CommitFailedException' in worker logs, partitions continually reassigning.",
+      "root_cause": "A heavy downstream warehouse sync step took 7 minutes, exceeding max.poll.interval.ms (set to 5 minutes), causing Kafka broker to mark consumer dead.",
+      "remediation": "Increased max.poll.interval.ms from 300000ms to 900000ms and reduced max.poll.records from 500 to 100.",
+      "runbook": "Runbook-Kafka-Consumer-Rebalance",
+      "post_mortem": "Decouple long-running synchronous external tasks from the main Kafka message consumption loop."
+    },
+    "tags": ["order-worker", "kafka", "consumer-lag", "Category 53", "Moderate"]
+  },
+  {
+    "incident_id": "INC001420",
+    "kaggle_metadata": {
+      "category": "Category 34",
+      "subcategory": "Subcategory 164",
+      "impact": "1 - High",
+      "urgency": "1 - High",
+      "priority": "1 - Critical",
+      "assignment_group": "Group 39",
+      "contact_type": "Phone",
+      "knowledge": false,
+      "made_sla": false
+    },
+    "synthetic_enrichment": {
+      "service": "Inventory Search Engine",
+      "summary": "Kubernetes pods entering OOMKilled crash loop on node pool.",
+      "symptoms": "Multiple pod terminations with exit code 137 (OOMKilled), service availability dropping below 50%, 502 Bad Gateway responses.",
+      "root_cause": "JVM max heap flag (-Xmx4g) exceeded the Kubernetes pod cgroup memory limit (container limit was set to 3.5GiB), triggering OS kernel kill.",
+      "remediation": "Adjusted deployment memory request/limit to 6GiB and configured JVM flag to -XX:MaxRAMPercentage=75.0.",
+      "runbook": "Runbook-K8s-OOM-CrashLoop",
+      "post_mortem": "Standardize container sizing guidelines and eliminate hardcoded static -Xmx values in favor of dynamic MaxRAMPercentage."
+    },
+    "tags": ["inventory-service", "kubernetes", "oomkilled", "Category 34", "Critical"]
+  },
+  {
+    "incident_id": "INC001550",
+    "kaggle_metadata": {
+      "category": "Category 9",
+      "subcategory": "Subcategory 175",
+      "impact": "3 - Low",
+      "urgency": "3 - Low",
+      "priority": "4 - Low",
+      "assignment_group": "Group 24",
+      "contact_type": "Email",
+      "knowledge": true,
+      "made_sla": true
+    },
+    "synthetic_enrichment": {
+      "service": "Email Notification Dispatcher",
+      "summary": "Outbound order confirmation emails delayed by 45 minutes.",
+      "symptoms": "Outgoing queue backlog building up, SMTP connection timeouts, customer service tickets inquiring about missing order receipts.",
+      "root_cause": "Third-party SendGrid SMTP relay IP was rate-limited due to sudden marketing blast sending concurrent un-throttled newsletters.",
+      "remediation": "Rerouted transactional receipt queue to secondary dedicated transactional IP pool and enabled leaky-bucket rate limiting.",
+      "runbook": "Runbook-Email-Relay-Throttling",
+      "post_mortem": "Strictly segregate transactional emails and marketing broadcast traffic into separate independent mail relays."
+    },
+    "tags": ["notification-service", "smtp", "rate-limiting", "Category 9", "Low"]
+  },
+  {
+    "incident_id": "INC001680",
+    "kaggle_metadata": {
+      "category": "Category 26",
+      "subcategory": "Subcategory 174",
+      "impact": "1 - High",
+      "urgency": "2 - Medium",
+      "priority": "2 - High",
+      "assignment_group": "Group 70",
+      "contact_type": "Phone",
+      "knowledge": false,
+      "made_sla": false
+    },
+    "synthetic_enrichment": {
+      "service": "Billing & Invoicing Service",
+      "summary": "PostgreSQL database CPU pegged at 100% following database schema migration.",
+      "symptoms": "Invoice generation API timing out, database query queue length exceeding 200, sequential table scans detected on accounts table.",
+      "root_cause": "A schema migration dropped a composite B-tree index on (account_id, billing_cycle), causing every invoice query to perform a full table scan on 40M rows.",
+      "remediation": "Recreated index concurrently: 'CREATE INDEX CONCURRENTLY idx_accounts_billing ON accounts(account_id, billing_cycle)'.",
+      "runbook": "Runbook-Postgres-Index-Rebuild",
+      "post_mortem": "Mandate EXPLAIN ANALYZE checks in PR reviews for any migration script modifying database indexes."
+    },
+    "tags": ["billing-service", "postgres", "missing-index", "Category 26", "High"]
+  },
+  {
+    "incident_id": "INC001710",
+    "kaggle_metadata": {
+      "category": "Category 34",
+      "subcategory": "Subcategory 156",
+      "impact": "2 - Medium",
+      "urgency": "1 - High",
+      "priority": "2 - High",
+      "assignment_group": "Group 28",
+      "contact_type": "Self-service",
+      "knowledge": false,
+      "made_sla": false
+    },
+    "synthetic_enrichment": {
+      "service": "Product Catalog Search Cluster",
+      "summary": "Elasticsearch cluster state RED with multiple unassigned primary shards.",
+      "symptoms": "Product search returning HTTP 503, search indices failing read queries, Elasticsearch health status 'RED'.",
+      "root_cause": "Data node disk usage exceeded the 85% flood-stage disk watermark, triggering automatic index block on write and shard allocation freeze.",
+      "remediation": "Purged 30-day-old log indices using ILM policy, freed 180GB disk space, and unblocked indices with index.blocks.read_only_allow_delete=false.",
+      "runbook": "Runbook-Elasticsearch-Disk-Watermark",
+      "post_mortem": "Configure auto-expansion for AWS EBS volumes when disk utilization reaches 75%."
+    },
+    "tags": ["search-cluster", "elasticsearch", "disk-watermark", "Category 34", "High"]
+  },
+  {
+    "incident_id": "INC001840",
+    "kaggle_metadata": {
+      "category": "Category 42",
+      "subcategory": "Subcategory 223",
+      "impact": "1 - High",
+      "urgency": "1 - High",
+      "priority": "1 - Critical",
+      "assignment_group": "Group 25",
+      "contact_type": "Phone",
+      "knowledge": false,
+      "made_sla": false
+    },
+    "synthetic_enrichment": {
+      "service": "Edge API Gateway",
+      "summary": "Envoy proxy thread exhaustion causing cascading network connection resets across all external APIs.",
+      "symptoms": "Incoming TCP connections reset by peer, client errors '503 Service Unavailable: no healthy upstream', Envoy active connection count flatlined at maximum capacity.",
+      "root_cause": "A single slow third-party geo-location service was holding upstream connections open for 60 seconds without a circuit breaker or route timeout.",
+      "remediation": "Applied strict Envoy route timeout of 1500ms and enabled outlier detection with consecutive_5xx circuit breaker on geo-location cluster.",
+      "runbook": "Runbook-Envoy-Circuit-Breaker",
+      "post_mortem": "Default all external third-party HTTP routes to a maximum 2000ms timeout with automatic fallback responses."
+    },
+    "tags": ["api-gateway", "envoy", "circuit-breaker", "Category 42", "Critical"]
+  },
+  {
+    "incident_id": "INC001990",
+    "kaggle_metadata": {
+      "category": "Category 42",
+      "subcategory": "Subcategory 174",
+      "impact": "2 - Medium",
+      "urgency": "2 - Medium",
+      "priority": "3 - Moderate",
+      "assignment_group": "Group 25",
+      "contact_type": "Email",
+      "knowledge": true,
+      "made_sla": true
+    },
+    "synthetic_enrichment": {
+      "service": "Enterprise SSO & LDAP Gateway",
+      "summary": "Internal employee portal logins failing with timeout error.",
+      "symptoms": "Staff unable to access internal VPN and dashboard tools, LDAP query latency spikes exceeding 15,000ms.",
+      "root_cause": "LDAP connection pool connection leak in Active Directory synchronization routine after an unhandled network socket exception.",
+      "remediation": "Restarted LDAP bridge service to release orphaned TCP sockets and patched the socket close handler in a try-finally block.",
+      "runbook": "Runbook-LDAP-Socket-Recovery",
+      "post_mortem": "Wrap all enterprise identity client connections in auto-closable connection managers."
+    },
+    "tags": ["sso-service", "ldap", "connection-leak", "Category 42", "Moderate"]
+  },
+  {
+    "incident_id": "INC002015",
+    "kaggle_metadata": {
+      "category": "Category 53",
+      "subcategory": "Subcategory 135",
+      "impact": "1 - High",
+      "urgency": "1 - High",
+      "priority": "1 - Critical",
+      "assignment_group": "Group 24",
+      "contact_type": "Phone",
+      "knowledge": false,
+      "made_sla": false
+    },
+    "synthetic_enrichment": {
+      "service": "Fraud Detection Streaming Pipeline",
+      "summary": "Flink streaming job failing checkpointing and falling behind real-time transaction stream.",
+      "symptoms": "Transactions processed without real-time fraud scoring, RocksDB state backend checkpoint timeouts exceeding 10 minutes.",
+      "root_cause": "AWS S3 storage throttled checkpoint write requests due to insufficient prefix partitioning on the state bucket.",
+      "remediation": "Updated Flink checkpoint directory to use randomized hash prefixes in S3 URI to distribute request load across multiple AWS partition keys.",
+      "runbook": "Runbook-Flink-Checkpoint-Partitioning",
+      "post_mortem": "Include S3 key entropy design in all streaming storage architectures."
+    },
+    "tags": ["fraud-pipeline", "flink", "s3-checkpointing", "Category 53", "Critical"]
+  },
+  {
+    "incident_id": "INC002130",
+    "kaggle_metadata": {
+      "category": "Category 20",
+      "subcategory": "Subcategory 10",
+      "impact": "2 - Medium",
+      "urgency": "2 - Medium",
+      "priority": "3 - Moderate",
+      "assignment_group": "Group 6",
+      "contact_type": "Self-service",
+      "knowledge": true,
+      "made_sla": true
+    },
+    "synthetic_enrichment": {
+      "service": "CI/CD Build Pipeline",
+      "summary": "Docker image build steps failing across all engineering pull requests.",
+      "symptoms": "Jenkins/GitHub Actions runner errors 'No space left on device', build queue backed up with 120 pending pipelines.",
+      "root_cause": "Dangling Docker build layers and cache containers accumulated on runner ephemeral NVMe drives without automated garbage collection.",
+      "remediation": "Executed 'docker system prune -af --volumes' across all runner nodes and deployed automated systemd timer for nightly image cleanup.",
+      "runbook": "Runbook-Runner-Disk-Cleanup",
+      "post_mortem": "Install node-exporter disk alert on all self-hosted CI/CD runner pools."
+    },
+    "tags": ["ci-cd", "docker", "disk-full", "Category 20", "Moderate"]
+  },
+  {
+    "incident_id": "INC002245",
+    "kaggle_metadata": {
+      "category": "Category 26",
+      "subcategory": "Subcategory 174",
+      "impact": "1 - High",
+      "urgency": "1 - High",
+      "priority": "1 - Critical",
+      "assignment_group": "Group 70",
+      "contact_type": "Phone",
+      "knowledge": false,
+      "made_sla": false
+    },
+    "synthetic_enrichment": {
+      "service": "Core Payment Processing Engine",
+      "summary": "Transactions failing with database deadlock errors during flash sale event.",
+      "symptoms": "PostgreSQL errors 'deadlock detected: Process 14201 waits for ShareLock on transaction', payment processing failure rate 34%.",
+      "root_cause": "Two concurrent microservices were updating order status and account balance tables in reverse lock order (Service A: orders then accounts; Service B: accounts then orders).",
+      "remediation": "Hotfixed the balance reservation transaction sequence to acquire table locks in uniform sorted order across both microservices.",
+      "runbook": "Runbook-Postgres-Deadlock-Mitigation",
+      "post_mortem": "Establish uniform database resource locking order conventions in database engineering standards."
+    },
+    "tags": ["payment-engine", "postgres", "deadlock", "Category 26", "Critical"]
+  },
+  {
+    "incident_id": "INC002360",
+    "kaggle_metadata": {
+      "category": "Category 42",
+      "subcategory": "Subcategory 223",
+      "impact": "2 - Medium",
+      "urgency": "1 - High",
+      "priority": "2 - High",
+      "assignment_group": "Group 25",
+      "contact_type": "Phone",
+      "knowledge": false,
+      "made_sla": false
+    },
+    "synthetic_enrichment": {
+      "service": "DNS & CDN Edge Routing",
+      "summary": "Intermittent DNS resolution failures for regional customer traffic.",
+      "symptoms": "Users in Asia-Pacific region encountering NXDOMAIN and DNS timeout errors, Cloudflare edge report showing 12% failed lookups.",
+      "root_cause": "Stale NS records on secondary DNS provider during multi-provider DNS migration; DNSSEC key tag mismatch prevented validation.",
+      "remediation": "Updated DS records at domain registrar and synchronized DS digest keys across Route53 and Cloudflare DNS zones.",
+      "runbook": "Runbook-DNSSEC-Key-Sync",
+      "post_mortem": "Add automated synthetic DNS check testing resolution across 10 global vantage points every 60 seconds."
+    },
+    "tags": ["dns", "cdn", "dnssec", "Category 42", "High"]
+  },
+  {
+    "incident_id": "INC002475",
+    "kaggle_metadata": {
+      "category": "Category 34",
+      "subcategory": "Subcategory 164",
+      "impact": "2 - Medium",
+      "urgency": "2 - Medium",
+      "priority": "3 - Moderate",
+      "assignment_group": "Group 39",
+      "contact_type": "Email",
+      "knowledge": true,
+      "made_sla": true
+    },
+    "synthetic_enrichment": {
+      "service": "Media Transcoding Service",
+      "summary": "Video processing jobs failing midway through MP4 generation.",
+      "symptoms": "Worker processes killed prematurely, job queue retrying indefinitely, FFmpeg exit code 1.",
+      "root_cause": "Ephemeral /tmp partition size was capped at 2GB in container spec, causing multi-gigabyte video transcoding buffers to fill disk space.",
+      "remediation": "Mounted Kubernetes emptyDir volume backed by node storage onto /tmp with 20GiB capacity limit.",
+      "runbook": "Runbook-K8s-EmptyDir-Storage",
+      "post_mortem": "Ensure media processing services always mount dedicated scratch storage volumes."
+    },
+    "tags": ["media-service", "ffmpeg", "disk-space", "Category 34", "Moderate"]
+  },
+  {
+    "incident_id": "INC002590",
+    "kaggle_metadata": {
+      "category": "Category 24",
+      "subcategory": "Subcategory 100",
+      "impact": "1 - High",
+      "urgency": "1 - High",
+      "priority": "1 - Critical",
+      "assignment_group": "Group 54",
+      "contact_type": "Phone",
+      "knowledge": false,
+      "made_sla": false
+    },
+    "synthetic_enrichment": {
+      "service": "Ingress Load Balancer",
+      "summary": "AWS ALB returning HTTP 502 Bad Gateway to all incoming external traffic.",
+      "symptoms": "Sudden drop to 0 successful requests, ALB Target Group health checks failing simultaneously across all backend EC2 instances.",
+      "root_cause": "A security group Terraform update inadvertently removed the inbound port 8080 rule allowing the ALB security group access to worker instances.",
+      "remediation": "Reverted the Terraform security group commit and manually applied security group ingress rule allowing ALB CIDR on port 8080.",
+      "runbook": "Runbook-ALB-SecurityGroup-Restore",
+      "post_mortem": "Introduce Terraform security group impact checks in CI pipelines to prevent accidental ingress rule deletion."
+    },
+    "tags": ["load-balancer", "alb", "security-group", "Category 24", "Critical"]
+  },
+  {
+    "incident_id": "INC002610",
+    "kaggle_metadata": {
+      "category": "Category 53",
+      "subcategory": "Subcategory 135",
+      "impact": "2 - Medium",
+      "urgency": "2 - Medium",
+      "priority": "3 - Moderate",
+      "assignment_group": "Group 24",
+      "contact_type": "Self-service",
+      "knowledge": true,
+      "made_sla": true
+    },
+    "synthetic_enrichment": {
+      "service": "Real-Time Telemetry Collector",
+      "summary": "Prometheus metric scraper dropping scrapes and reporting high scrape duration.",
+      "symptoms": "Gaps in Grafana dashboards, Prometheus warning 'context deadline exceeded during scrape', CPU spike on metric scraper instances.",
+      "root_cause": "A new debug metric was published with high-cardinality labels (including raw user_id and session_id), exploding Prometheus time-series count by 4,000,000.",
+      "remediation": "Applied Prometheus metric relabeling config to drop 'user_id' and 'session_id' label dimensions at scrape time.",
+      "runbook": "Runbook-Prometheus-Cardinality-Drop",
+      "post_mortem": "Enforce automated unit test checking that all Prometheus metric labels use low-cardinality enum values."
+    },
+    "tags": ["monitoring", "prometheus", "cardinality-explosion", "Category 53", "Moderate"]
+  },
+  {
+    "incident_id": "INC002725",
+    "kaggle_metadata": {
+      "category": "Category 9",
+      "subcategory": "Subcategory 175",
+      "impact": "3 - Low",
+      "urgency": "3 - Low",
+      "priority": "4 - Low",
+      "assignment_group": "Group 24",
+      "contact_type": "Email",
+      "knowledge": true,
+      "made_sla": true
+    },
+    "synthetic_enrichment": {
+      "service": "SMS One-Time Password Service",
+      "summary": "Twilio SMS delivery latency increased by 5 minutes for European phone numbers.",
+      "symptoms": "User complaints regarding delayed two-factor authentication codes, Twilio status callback logs showing queued status.",
+      "root_cause": "Primary Twilio shortcode route experienced telecom operator degradation in Germany and France.",
+      "remediation": "Toggled SMS provider fallback switch in config to route European numbers through MessageBird backup gateway.",
+      "runbook": "Runbook-SMS-Provider-Failover",
+      "post_mortem": "Configure automated SMS provider failover based on P95 delivery latency exceeding 30 seconds."
+    },
+    "tags": ["sms-service", "2fa", "provider-failover", "Category 9", "Low"]
+  },
+  {
+    "incident_id": "INC002840",
+    "kaggle_metadata": {
+      "category": "Category 26",
+      "subcategory": "Subcategory 174",
+      "impact": "1 - High",
+      "urgency": "1 - High",
+      "priority": "1 - Critical",
+      "assignment_group": "Group 70",
+      "contact_type": "Phone",
+      "knowledge": false,
+      "made_sla": false
+    },
+    "synthetic_enrichment": {
+      "service": "Customer Wallet Balance Service",
+      "summary": "Race condition causing double-credit on simultaneous top-up transactions.",
+      "symptoms": "Discrepancy in financial audit logs, multiple balance credit events recorded with identical timestamp within 5 milliseconds.",
+      "root_cause": "Wallet service lacked optimistic locking or database row lock (SELECT FOR UPDATE) on the balance record during concurrent top-up requests.",
+      "remediation": "Applied optimistic versioning column ('version') on wallet table and added idempotent Redis distributed lock around wallet credit mutation.",
+      "runbook": "Runbook-Wallet-Concurrency-Lock",
+      "post_mortem": "Mandate idempotent keys and optimistic concurrency control for all ledger-affecting APIs."
+    },
+    "tags": ["wallet-service", "concurrency", "distributed-lock", "Category 26", "Critical"]
+  },
+  {
+    "incident_id": "INC002955",
+    "kaggle_metadata": {
+      "category": "Category 42",
+      "subcategory": "Subcategory 223",
+      "impact": "2 - Medium",
+      "urgency": "1 - High",
+      "priority": "2 - High",
+      "assignment_group": "Group 25",
+      "contact_type": "Phone",
+      "knowledge": false,
+      "made_sla": false
+    },
+    "synthetic_enrichment": {
+      "service": "Websocket Push Notification Hub",
+      "summary": "Websocket gateway disconnecting 80,000 active client connections every 60 seconds.",
+      "symptoms": "Reconnection storm hammering backend auth servers, client disconnect code 1006 (abnormal closure), client reconnect loop.",
+      "root_cause": "AWS Network Load Balancer idle connection timeout was set to 60 seconds, while application websocket ping/pong heartbeat interval was configured to 90 seconds.",
+      "remediation": "Reduced client websocket ping interval to 30 seconds and increased NLB client idle timeout to 350 seconds.",
+      "runbook": "Runbook-Websocket-Heartbeat-Sync",
+      "post_mortem": "Synchronize all reverse proxy and load balancer idle timeouts with client heartbeat intervals in architectural runbooks."
+    },
+    "tags": ["websocket", "nlb", "heartbeat-timeout", "Category 42", "High"]
+  }
+]
